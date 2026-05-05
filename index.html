@@ -988,23 +988,16 @@ const qas = [
   ["What is MVCC in PostgreSQL?","MVCC = Multi-Version Concurrency Control. Iska matlab multiple users ek saath read/write kar sakte hain bina full blocking ke. Har transaction ko data ka consistent snapshot milta hai."],
   ["Function vs Stored Procedure — difference?","Function value return karti hai aur SELECT me use ho sakti hai. Procedure value return nahi karti, CALL se chalti hai, aur PostgreSQL 11+ me transaction control (COMMIT/ROLLBACK) kar sakti hai."],
   ["What is a Trigger?","Trigger ek automatic action hai jo INSERT, UPDATE, DELETE jaise event par chalti hai. BEFORE/AFTER aur row-level/statement-level dono tarah se set ki ja sakti hai."],
-  ["Write a query to find the 2nd highest fee paid.","Ek easy way: SELECT MAX(fee_paid) FROM students WHERE fee_paid < (SELECT MAX(fee_paid) FROM students);. Ya DENSE_RANK() use karke rank 2 wali value nikaalo."],
-  ["How do you find duplicate records?","GROUP BY ke saath COUNT(*) use karo: SELECT email, COUNT(*) FROM students GROUP BY email HAVING COUNT(*) > 1;. Jahan count 1 se zyada hai, wahan duplicate hai."],
   ["What is the difference between NOT IN and NOT EXISTS?","Agar subquery me NULL aa gaya to NOT IN weird behave kar sakta hai aur rows miss ho sakti hain. NOT EXISTS NULL-safe hota hai. Isliye NULL possible ho to NOT EXISTS safer choice hai."],
-  ["What is normalization? Explain 1NF, 2NF, 3NF.","Normalization ka goal redundancy kam karna hai. 1NF: har cell me atomic value, repeating groups nahi. 2NF: partial dependency nahi. 3NF: transitive dependency nahi."],
   ["JSON vs JSONB in PostgreSQL — which to prefer?","JSONB generally better hai because ye binary format me store hota hai, query fast hoti hai, aur index support better hota hai. JSON exact input ko preserve karta hai, but querying slower hoti hai. Mostly JSONB prefer karo."],
-  ["What does EXPLAIN ANALYZE do?","EXPLAIN query plan dikhata hai. EXPLAIN ANALYZE query ko actually run karke timing aur row counts dikhata hai. Performance issue pakadne ke liye ye bahut important tool hai."],
   ["What is COALESCE and NULLIF?","COALESCE(a,b,c) = pehla non-NULL value return karta hai. NULLIF(a,b) = agar a=b ho to NULL, warna a. Example: NULLIF(count,0) division-by-zero se bachata hai."],
   ["How do you model a many-to-many relationship?","Bridge / junction table banao jisme dono tables ke foreign keys ho. Example: enrollments table me student_id aur course_id dono. Kabhi-kabhi UNIQUE(student_id, course_id) bhi lagate hain."],
-  ["What is a SERIAL column? What is IDENTITY?","SERIAL older auto-increment syntax hai, sequence internally use karta hai. IDENTITY SQL standard way hai. GENERATED ALWAYS manual insert ko rokti hai, BY DEFAULT manual insert allow kar sakti hai."],
   ["What happens if you UPDATE without a WHERE clause?","Table ke saare rows update ho jaate hain. Ye dangerous mistake hai. UPDATE ya DELETE chalane se pehle same WHERE ke saath SELECT karke check karna best habit hai."],
   ["What is a Subquery? Name its types.","Subquery = query ke andar query. Types: Scalar (1 value), Row (1 row), Table/Multi-row (multiple rows), Correlated (outer query ko reference karti hai, isliye slow ho sakti hai)."],
   ["What is the difference between UNION and UNION ALL?","UNION duplicate rows remove karta hai, isliye thoda slow ho sakta hai. UNION ALL duplicates ko bhi rakhta hai, isliye faster hota hai."],
   ["How do you add a column to an existing table?","ALTER TABLE students ADD COLUMN phone VARCHAR(15);. Agar default chahiye ho to: ADD COLUMN score INT DEFAULT 0;."],
   ["What is a Sequence?","Sequence unique integers generate karti hai. SERIAL isko internally use karta hai. NEXTVAL('seq_name') next number deta hai."],
   ["What is ON DELETE CASCADE?","Foreign key ka option. Parent row delete hone par child rows bhi auto-delete ho jaati hain. SET NULL me child FK NULL ho jaata hai, RESTRICT me delete block hota hai."],
-  ["How do you do pagination in PostgreSQL?","LIMIT + OFFSET use karo: page 1 = LIMIT 10 OFFSET 0, page 2 = LIMIT 10 OFFSET 10. Consistent result ke liye ORDER BY zaroor lagao."],
-  ["What is a Self Join?","Table ko usi table ke saath join karna. Hierarchy ke liye useful hai, jaise employee aur manager ka relation."]
 ];
 
 const list = document.getElementById('qa-list');
