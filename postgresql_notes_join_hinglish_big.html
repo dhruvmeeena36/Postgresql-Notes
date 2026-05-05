@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PostgreSQL Complete Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --bg:#0e0e14;--bg2:#15151f;--bg3:#1c1c2a;--bg4:#23233a;
+    --border:#2e2e4a;--text:#e8e8f0;--muted:#8888aa;
+    --purple:#a78bfa;--purple-bg:#1e1a3a;--purple-dim:#7c3aed;
+    --blue:#60a5fa;--blue-bg:#0f1e36;--blue-dim:#1d4ed8;
+    --green:#4ade80;--green-bg:#0d2818;--green-dim:#15803d;
+    --amber:#fbbf24;--amber-bg:#2a1d05;--amber-dim:#b45309;
+    --red:#f87171;--red-bg:#2a0e0e;--red-dim:#b91c1c;
+    --pink:#f472b6;--pink-bg:#2a0e1e;--pink-dim:#be185d;
+    --teal:#2dd4bf;--teal-bg:#0a2424;--teal-dim:#0f766e;
+    --coral:#fb923c;--coral-bg:#2a1205;--coral-dim:#c2410c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+  a{color:var(--blue);text-decoration:none}
+
+  /* ─── HEADER ─── */
+  .header{background:linear-gradient(135deg,#1a103a 0%,#0e1a36 60%,#0a2424 100%);padding:2.5rem 2rem 2rem;border-bottom:1px solid var(--border);position:relative;overflow:hidden}
+  .header::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;background:radial-gradient(circle,rgba(124,58,237,.18) 0%,transparent 70%);pointer-events:none}
+  .header::after{content:'';position:absolute;bottom:-60px;left:10%;width:200px;height:200px;background:radial-gradient(circle,rgba(29,78,216,.14) 0%,transparent 70%);pointer-events:none}
+  .header-inner{max-width:1100px;margin:0 auto;position:relative}
+  .header h1{font-size:2.4rem;font-weight:700;background:linear-gradient(90deg,var(--purple),var(--blue),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem}
+  .header p{color:var(--muted);font-size:.95rem}
+  .badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:1rem}
+  .badge{font-size:11px;font-weight:600;padding:3px 12px;border-radius:20px;letter-spacing:.03em}
+
+  /* ─── LAYOUT ─── */
+  .container{max-width:1100px;margin:0 auto;padding:1.5rem 1.5rem 4rem}
+
+  /* ─── TABS ─── */
+  .tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.5rem;position:sticky;top:0;z-index:10;background:var(--bg);padding:1rem 0 .8rem;border-bottom:1px solid var(--border)}
+  .tab-btn{font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:6px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg2);color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.02em}
+  .tab-btn:hover{border-color:var(--purple);color:var(--purple)}
+  .tab-btn.active{background:var(--purple-dim);border-color:var(--purple);color:#fff}
+  .section{display:none}.section.active{display:block}
+
+  /* ─── GRID ─── */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+  .grid-auto{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem}
+  @media(max-width:700px){.grid-2,.grid-3{grid-template-columns:1fr}}
+
+  /* ─── CARDS ─── */
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:1.2rem 1.4rem;margin-bottom:1rem}
+  .card-purple{background:var(--purple-bg);border-color:#3d2d7a}
+  .card-blue{background:var(--blue-bg);border-color:#1d3a6e}
+  .card-green{background:var(--green-bg);border-color:#1a4d2e}
+  .card-amber{background:var(--amber-bg);border-color:#5a3a10}
+  .card-red{background:var(--red-bg);border-color:#5a1a1a}
+  .card-pink{background:var(--pink-bg);border-color:#5a1a3a}
+  .card-teal{background:var(--teal-bg);border-color:#1a4040}
+  .card-coral{background:var(--coral-bg);border-color:#5a2a10}
+
+  .card h2{font-size:1rem;font-weight:600;margin-bottom:.9rem;display:flex;align-items:center;gap:8px}
+  .card h3{font-size:.9rem;font-weight:600;margin-bottom:.6rem}
+  .card p,.card li{font-size:.88rem;color:var(--text);line-height:1.75}
+  .card ul{padding-left:1.2rem}
+  .card ul li{margin-bottom:4px}
+
+  /* ─── CODE BLOCKS ─── */
+  .code-block{background:#0a0a12;border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;font-family:'JetBrains Mono',monospace;font-size:.78rem;line-height:1.8;overflow-x:auto;margin:.7rem 0;white-space:pre}
+  .kw{color:#c084fc}.fn{color:#60a5fa}.str{color:#86efac}.cm{color:#4a5568}.num{color:#fbbf24}.op{color:#f472b6}.tp{color:#2dd4bf}
+
+  /* ─── TABLES ─── */
+  .data-table{width:100%;border-collapse:collapse;font-size:.83rem;margin:.7rem 0}
+  .data-table th{background:var(--bg3);color:var(--muted);font-weight:600;text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);font-size:.78rem;letter-spacing:.04em;text-transform:uppercase}
+  .data-table td{padding:8px 12px;border-bottom:1px solid var(--border);color:var(--text)}
+  .data-table tr:last-child td{border-bottom:none}
+  .data-table tr:hover td{background:var(--bg3)}
+
+  /* ─── PILLS & TAGS ─── */
+  .pill{display:inline-flex;align-items:center;font-size:11px;font-weight:600;padding:2px 10px;border-radius:12px;margin:2px}
+  .pill-purple{background:var(--purple-bg);color:var(--purple);border:1px solid #3d2d7a}
+  .pill-blue{background:var(--blue-bg);color:var(--blue);border:1px solid #1d3a6e}
+  .pill-green{background:var(--green-bg);color:var(--green);border:1px solid #1a4d2e}
+  .pill-amber{background:var(--amber-bg);color:var(--amber);border:1px solid #5a3a10}
+  .pill-red{background:var(--red-bg);color:var(--red);border:1px solid #5a1a1a}
+  .pill-teal{background:var(--teal-bg);color:var(--teal);border:1px solid #1a4040}
+  .pill-pink{background:var(--pink-bg);color:var(--pink);border:1px solid #5a1a3a}
+  .pill-coral{background:var(--coral-bg);color:var(--coral);border:1px solid #5a2a10}
+
+  /* ─── SECTION TITLE ─── */
+  .section-title{font-size:1.4rem;font-weight:700;margin-bottom:1.2rem;padding-bottom:.6rem;border-bottom:1px solid var(--border)}
+
+  /* ─── DIFF BOX ─── */
+  .diff-row{display:flex;gap:.5rem;margin-bottom:.5rem;align-items:flex-start}
+  .diff-wrong{background:#2a0e0e;border:1px solid #5a1a1a;color:#f87171;padding:4px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.78rem;flex:1}
+  .diff-right{background:#0d2818;border:1px solid #1a4d2e;color:#4ade80;padding:4px 10px;border-radius:8px;font-family:'JetBrains Mono',monospace;font-size:.78rem;flex:1}
+  .diff-arrow{color:var(--muted);padding-top:4px;font-size:14px}
+
+  /* ─── NOTE BOX ─── */
+  .note{background:var(--amber-bg);border-left:3px solid var(--amber);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.7rem 0;font-size:.83rem;color:var(--amber)}
+  .tip{background:var(--teal-bg);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.7rem 0;font-size:.83rem;color:var(--teal)}
+  .warn{background:var(--red-bg);border-left:3px solid var(--red);border-radius:0 8px 8px 0;padding:.6rem 1rem;margin:.7rem 0;font-size:.83rem;color:var(--red)}
+
+  /* ─── Q&A ─── */
+  .qa-item{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:.7rem}
+  .qa-q{background:var(--bg3);padding:.75rem 1.1rem;font-size:.87rem;font-weight:600;color:var(--purple);cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+  .qa-q:hover{background:var(--purple-bg)}
+  .qa-a{padding:.85rem 1.1rem;font-size:.85rem;color:var(--text);line-height:1.8;display:none;background:var(--bg2)}
+  .qa-a.open{display:block}
+  .qa-arrow{transition:transform .2s;font-size:12px;color:var(--muted)}
+  .qa-arrow.open{transform:rotate(180deg)}
+
+  /* ─── JOIN VISUAL ─── */
+  .join-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.8rem}
+  .join-card{border-radius:12px;padding:1rem;text-align:center;border:1px solid var(--border)}
+  .join-card h4{font-size:.85rem;font-weight:600;margin-bottom:.4rem}
+  .join-card p{font-size:.78rem;color:var(--muted);line-height:1.5}
+  .venn{width:90px;height:50px;margin:0 auto .6rem;position:relative}
+  .venn-c{position:absolute;width:40px;height:40px;border-radius:50%;opacity:.6}
+
+  /* ─── CHEAT SHEET ─── */
+  .cheat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+  .cheat-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1rem}
+  .cheat-card h4{font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.7rem}
+  .cheat-card .code-block{margin:0;font-size:.75rem}
+
+  /* ─── SCROLL BAR ─── */
+  ::-webkit-scrollbar{width:6px;height:6px}
+  ::-webkit-scrollbar-track{background:var(--bg)}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  ::-webkit-scrollbar-thumb:hover{background:#3e3e6a}
+
+  /* ─── PROGRESS ─── */
+  .progress-bar{height:3px;background:linear-gradient(90deg,var(--purple),var(--blue),var(--teal));position:fixed;top:0;left:0;z-index:100;transition:width .1s}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<div class="header">
+  <div class="header-inner">
+    <h1>PostgreSQL Notes</h1>
+    <p>Medium-depth revision notes — from basics to interview level.</p>
+    <div class="badges">
+      <span class="badge" style="background:#1e1a3a;color:#a78bfa;border:1px solid #3d2d7a">Beginner Friendly</span>
+      <span class="badge" style="background:#0f1e36;color:#60a5fa;border:1px solid #1d3a6e">Interview Ready</span>
+      <span class="badge" style="background:#0d2818;color:#4ade80;border:1px solid #1a4d2e">With Examples</span>
+      <span class="badge" style="background:#2a1205;color:#fb923c;border:1px solid #5a2a10">Deployable</span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="tabs" id="tabBar">
+    <button class="tab-btn active" onclick="show('overview',this)">Overview</button>
+    <button class="tab-btn" onclick="show('basics',this)">SQL Basics</button>
+    <button class="tab-btn" onclick="show('tables',this)">Tables</button>
+    <button class="tab-btn" onclick="show('crud',this)">CRUD</button>
+    <button class="tab-btn" onclick="show('filter',this)">Filter & Sort</button>
+    <button class="tab-btn" onclick="show('agg',this)">Aggregates</button>
+    <button class="tab-btn" onclick="show('joins',this)">Joins</button>
+    <button class="tab-btn" onclick="show('subquery',this)">Subqueries</button>
+    <button class="tab-btn" onclick="show('advanced',this)">Advanced</button>
+    <button class="tab-btn" onclick="show('interview',this)">Interview Q&A</button>
+    <button class="tab-btn" onclick="show('cheatsheet',this)">Cheat Sheet</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ OVERVIEW ══ -->
+  <div id="overview" class="section active">
+    <p class="section-title" style="color:var(--purple)">1. PostgreSQL Overview</p>
+    <div class="grid-2">
+      <div class="card card-purple">
+        <h2 style="color:var(--purple)">What is PostgreSQL?</h2>
+        <p>PostgreSQL (Postgres) is a free, open-source, object-relational database management system (ORDBMS). It stores data in tables and uses SQL to manage data. Developed at UC Berkeley, maintained by global community since 1996.</p>
+        <div class="tip" style="margin-top:.8rem">Used by Instagram, Reddit, Apple, Spotify — trusted at massive scale.</div>
+      </div>
+      <div class="card card-blue">
+        <h2 style="color:var(--blue)">Why Use PostgreSQL?</h2>
+        <ul>
+          <li>100% free and open-source</li>
+          <li>Full ACID compliance — data is always safe</li>
+          <li>Handles complex queries beautifully</li>
+          <li>Built-in JSON/JSONB — acts like NoSQL too</li>
+          <li>Advanced features: Window functions, CTEs, Triggers</li>
+          <li>Runs on Linux, Windows, macOS</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card card-teal">
+      <h2 style="color:var(--teal)">Key Features</h2>
+      <div class="grid-3">
+        <div>
+          <p class="pill pill-teal">ACID</p>
+          <p style="font-size:.83rem;margin-top:4px">Atomicity, Consistency, Isolation, Durability — data integrity guaranteed.</p>
+        </div>
+        <div>
+          <p class="pill pill-purple">MVCC</p>
+          <p style="font-size:.83rem;margin-top:4px">Multiple users read/write simultaneously without blocking each other.</p>
+        </div>
+        <div>
+          <p class="pill pill-amber">JSON/JSONB</p>
+          <p style="font-size:.83rem;margin-top:4px">Store and query JSON like a NoSQL DB. JSONB is binary and faster.</p>
+        </div>
+        <div>
+          <p class="pill pill-blue">Indexes</p>
+          <p style="font-size:.83rem;margin-top:4px">B-Tree, Hash, GIN, GiST, BRIN — multiple types for different queries.</p>
+        </div>
+        <div>
+          <p class="pill pill-green">Extensions</p>
+          <p style="font-size:.83rem;margin-top:4px">PostGIS (geo), pg_trgm (fuzzy search), uuid-ossp and 100+ more.</p>
+        </div>
+        <div>
+          <p class="pill pill-pink">Full-Text Search</p>
+          <p style="font-size:.83rem;margin-top:4px">Built-in search engine with ranking, stemming, and language support.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="color:var(--amber)">PostgreSQL vs MySQL</h2>
+      <table class="data-table">
+        <thead><tr><th>Feature</th><th>PostgreSQL</th><th>MySQL</th></tr></thead>
+        <tbody>
+          <tr><td>Type</td><td>Object-Relational (ORDBMS)</td><td>Relational (RDBMS)</td></tr>
+          <tr><td>JSON Support</td><td><span class="pill pill-green">Advanced — JSONB with indexes</span></td><td><span class="pill pill-amber">Basic JSON only</span></td></tr>
+          <tr><td>Complex Queries</td><td><span class="pill pill-green">Excellent</span></td><td><span class="pill pill-amber">Less optimized</span></td></tr>
+          <tr><td>Simple Read Speed</td><td>Slightly slower</td><td><span class="pill pill-green">Faster</span></td></tr>
+          <tr><td>Window Functions</td><td><span class="pill pill-green">Full support</span></td><td>MySQL 8+ only</td></tr>
+          <tr><td>Open Source</td><td><span class="pill pill-green">100% free</span></td><td>Oracle-owned</td></tr>
+          <tr><td>Best For</td><td>Analytics, complex apps</td><td>Simple web apps</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ BASICS ══ -->
+  <div id="basics" class="section">
+    <p class="section-title" style="color:var(--blue)">2. SQL Basics in PostgreSQL</p>
+    <div class="grid-2">
+      <div class="card card-blue">
+        <h2 style="color:var(--blue)">Core Vocabulary</h2>
+        <table class="data-table">
+          <thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill pill-purple">Database</span></td><td>Top container. Holds schemas.</td></tr>
+            <tr><td><span class="pill pill-blue">Schema</span></td><td>Namespace. Default = <code style="color:var(--teal)">public</code></td></tr>
+            <tr><td><span class="pill pill-green">Table</span></td><td>Rows + columns. Stores data.</td></tr>
+            <tr><td><span class="pill pill-amber">Row</span></td><td>One record / entry.</td></tr>
+            <tr><td><span class="pill pill-pink">Column</span></td><td>A field / category of data.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card card-purple">
+        <h2 style="color:var(--purple)">Constraints</h2>
+        <table class="data-table">
+          <thead><tr><th>Constraint</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill pill-purple">PRIMARY KEY</span></td><td>Unique + NOT NULL. One per table.</td></tr>
+            <tr><td><span class="pill pill-blue">FOREIGN KEY</span></td><td>Links to PK of another table.</td></tr>
+            <tr><td><span class="pill pill-green">UNIQUE</span></td><td>No two rows same value.</td></tr>
+            <tr><td><span class="pill pill-amber">NOT NULL</span></td><td>Value is required.</td></tr>
+            <tr><td><span class="pill pill-red">CHECK</span></td><td>Value must pass a condition.</td></tr>
+            <tr><td><span class="pill pill-teal">DEFAULT</span></td><td>Auto-fills if not provided.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="card card-teal">
+      <h2 style="color:var(--teal)">Data Types Reference</h2>
+      <div class="grid-2">
+        <div>
+          <h3 style="color:var(--teal);margin-bottom:.5rem">Numeric</h3>
+          <div class="code-block"><span class="tp">INT</span>             -- whole numbers (-2B to 2B)
+<span class="tp">BIGINT</span>          -- large whole numbers
+<span class="tp">SERIAL</span>          -- auto-increment integer
+<span class="tp">DECIMAL</span>(p, s)   -- exact decimal (e.g., 9.99)
+<span class="tp">FLOAT</span>           -- approximate decimal
+<span class="tp">BOOLEAN</span>         -- TRUE / FALSE</div>
+        </div>
+        <div>
+          <h3 style="color:var(--teal);margin-bottom:.5rem">Text</h3>
+          <div class="code-block"><span class="tp">VARCHAR</span>(n)   -- variable, up to n chars
+<span class="tp">CHAR</span>(n)      -- fixed length, pads spaces
+<span class="tp">TEXT</span>          -- unlimited length</div>
+          <h3 style="color:var(--teal);margin:.6rem 0 .5rem">Date / Time</h3>
+          <div class="code-block"><span class="tp">DATE</span>          -- '2024-01-15'
+<span class="tp">TIME</span>          -- '09:30:00'
+<span class="tp">TIMESTAMP</span>     -- date + time
+<span class="tp">TIMESTAMPTZ</span>   -- with timezone
+<span class="tp">INTERVAL</span>      -- '3 days', '2 hours'</div>
+        </div>
+      </div>
+    </div>
+    <div class="card card-amber">
+      <h2 style="color:var(--amber)">FOREIGN KEY — ON DELETE Options</h2>
+      <table class="data-table">
+        <thead><tr><th>Option</th><th>What happens to child rows</th></tr></thead>
+        <tbody>
+          <tr><td><code style="color:var(--red)">CASCADE</code></td><td>Auto-deleted when parent is deleted</td></tr>
+          <tr><td><code style="color:var(--amber)">SET NULL</code></td><td>FK column becomes NULL</td></tr>
+          <tr><td><code style="color:var(--blue)">RESTRICT</code></td><td>Prevents parent delete if children exist</td></tr>
+          <tr><td><code style="color:var(--green)">SET DEFAULT</code></td><td>FK column set to its DEFAULT value</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ TABLES ══ -->
+  <div id="tables" class="section">
+    <p class="section-title" style="color:var(--green)">3. Table Creation with Examples</p>
+    <div class="card card-green">
+      <h2 style="color:var(--green)">CREATE TABLE — Students</h2>
+      <div class="code-block"><span class="kw">CREATE TABLE</span> students (
+  student_id   <span class="tp">SERIAL</span>           <span class="kw">PRIMARY KEY</span>,
+  first_name   <span class="tp">VARCHAR</span>(<span class="num">50</span>)       <span class="kw">NOT NULL</span>,
+  last_name    <span class="tp">VARCHAR</span>(<span class="num">50</span>)       <span class="kw">NOT NULL</span>,
+  email        <span class="tp">VARCHAR</span>(<span class="num">100</span>)      <span class="kw">UNIQUE NOT NULL</span>,
+  age          <span class="tp">INT</span>              <span class="kw">CHECK</span> (age <span class="op">>=</span> <span class="num">5</span> <span class="kw">AND</span> age <span class="op"><=</span> <span class="num">100</span>),
+  gender       <span class="tp">CHAR</span>(<span class="num">1</span>)          <span class="kw">CHECK</span> (gender <span class="kw">IN</span> (<span class="str">'M'</span>, <span class="str">'F'</span>, <span class="str">'O'</span>)),
+  course       <span class="tp">VARCHAR</span>(<span class="num">100</span>)      <span class="kw">DEFAULT</span> <span class="str">'Undecided'</span>,
+  fee_paid     <span class="tp">NUMERIC</span>(<span class="num">10</span>, <span class="num">2</span>)   <span class="kw">DEFAULT</span> <span class="num">0.00</span>,
+  enrolled_on  <span class="tp">DATE</span>             <span class="kw">DEFAULT</span> <span class="fn">CURRENT_DATE</span>,
+  is_active    <span class="tp">BOOLEAN</span>          <span class="kw">DEFAULT</span> <span class="kw">TRUE</span>
+);</div>
+    </div>
+    <div class="card card-blue">
+      <h2 style="color:var(--blue)">Column Explanation</h2>
+      <table class="data-table">
+        <thead><tr><th>Column</th><th>Type</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>student_id</td><td><span class="pill pill-purple">SERIAL PK</span></td><td>Auto-generates 1, 2, 3… unique ID</td></tr>
+          <tr><td>email</td><td><span class="pill pill-blue">UNIQUE NOT NULL</span></td><td>Each student needs a unique email</td></tr>
+          <tr><td>age</td><td><span class="pill pill-green">CHECK</span></td><td>Only valid age range accepted</td></tr>
+          <tr><td>gender</td><td><span class="pill pill-amber">CHECK IN</span></td><td>Only M, F, or O allowed</td></tr>
+          <tr><td>course</td><td><span class="pill pill-teal">DEFAULT</span></td><td>Auto-fills 'Undecided' if not given</td></tr>
+          <tr><td>enrolled_on</td><td><span class="pill pill-pink">DEFAULT NOW</span></td><td>Auto-sets today's date</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card card-purple">
+      <h2 style="color:var(--purple)">INSERT INTO — Sample Data</h2>
+      <div class="code-block"><span class="kw">INSERT INTO</span> students (first_name, last_name, email, age, gender, course, fee_paid)
+<span class="kw">VALUES</span>
+  (<span class="str">'Arjun'</span>,  <span class="str">'Sharma'</span>, <span class="str">'arjun@mail.com'</span>,  <span class="num">21</span>, <span class="str">'M'</span>, <span class="str">'Computer Science'</span>, <span class="num">45000.00</span>),
+  (<span class="str">'Priya'</span>,  <span class="str">'Nair'</span>,   <span class="str">'priya@mail.com'</span>,  <span class="num">22</span>, <span class="str">'F'</span>, <span class="str">'Data Science'</span>,     <span class="num">48000.00</span>),
+  (<span class="str">'Ravi'</span>,   <span class="str">'Kumar'</span>,  <span class="str">'ravi@mail.com'</span>,   <span class="num">20</span>, <span class="str">'M'</span>, <span class="str">'Computer Science'</span>, <span class="num">45000.00</span>),
+  (<span class="str">'Sneha'</span>,  <span class="str">'Patel'</span>,  <span class="str">'sneha@mail.com'</span>,  <span class="num">23</span>, <span class="str">'F'</span>, <span class="kw">DEFAULT</span>,            <span class="kw">DEFAULT</span>);</div>
+    </div>
+    <div class="card card-amber">
+      <h2 style="color:var(--amber)">Sample Table Data</h2>
+      <table class="data-table">
+        <thead><tr><th>id</th><th>first_name</th><th>email</th><th>age</th><th>course</th><th>fee_paid</th><th>is_active</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Arjun</td><td>arjun@mail.com</td><td>21</td><td>Computer Science</td><td>45000.00</td><td><span class="pill pill-green">TRUE</span></td></tr>
+          <tr><td>2</td><td>Priya</td><td>priya@mail.com</td><td>22</td><td>Data Science</td><td>48000.00</td><td><span class="pill pill-green">TRUE</span></td></tr>
+          <tr><td>3</td><td>Ravi</td><td>ravi@mail.com</td><td>20</td><td>Computer Science</td><td>45000.00</td><td><span class="pill pill-green">TRUE</span></td></tr>
+          <tr><td>4</td><td>Sneha</td><td>sneha@mail.com</td><td>23</td><td>Undecided</td><td>0.00</td><td><span class="pill pill-green">TRUE</span></td></tr>
+        </tbody>
+      </table>
+      <div class="note">Sneha got DEFAULT values because we didn't provide course or fee_paid.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ CRUD ══ -->
+  <div id="crud" class="section">
+    <p class="section-title" style="color:var(--coral)">4. CRUD Operations</p>
+    <div class="card card-green">
+      <h2 style="color:var(--green)">SELECT — Read Data</h2>
+      <div class="code-block"><span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students;                   <span class="cm">-- all rows, all columns</span>
+<span class="kw">SELECT</span> first_name, course <span class="kw">FROM</span> students;   <span class="cm">-- specific columns</span>
+<span class="kw">SELECT DISTINCT</span> course <span class="kw">FROM</span> students;       <span class="cm">-- unique values only</span>
+<span class="kw">SELECT</span> first_name <span class="kw">AS</span> <span class="str">"Name"</span> <span class="kw">FROM</span> students;  <span class="cm">-- column alias</span>
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students <span class="kw">WHERE</span> gender = <span class="str">'F'</span>; <span class="cm">-- with condition</span></div>
+    </div>
+    <div class="card card-blue">
+      <h2 style="color:var(--blue)">INSERT — Add Rows</h2>
+      <div class="code-block"><span class="cm">-- Single row</span>
+<span class="kw">INSERT INTO</span> students (first_name, last_name, email, age, gender)
+<span class="kw">VALUES</span> (<span class="str">'Karan'</span>, <span class="str">'Mehta'</span>, <span class="str">'karan@mail.com'</span>, <span class="num">24</span>, <span class="str">'M'</span>);
+
+<span class="cm">-- Multiple rows</span>
+<span class="kw">INSERT INTO</span> students (first_name, email, age, gender)
+<span class="kw">VALUES</span>
+  (<span class="str">'Anjali'</span>, <span class="str">'anjali@mail.com'</span>, <span class="num">21</span>, <span class="str">'F'</span>),
+  (<span class="str">'Mohan'</span>,  <span class="str">'mohan@mail.com'</span>,  <span class="num">22</span>, <span class="str">'M'</span>);</div>
+    </div>
+    <div class="card card-amber">
+      <h2 style="color:var(--amber)">UPDATE — Modify Rows</h2>
+      <div class="code-block"><span class="cm">-- Update single column</span>
+<span class="kw">UPDATE</span> students
+<span class="kw">SET</span> course = <span class="str">'Cybersecurity'</span>
+<span class="kw">WHERE</span> student_id = <span class="num">4</span>;
+
+<span class="cm">-- Update multiple columns</span>
+<span class="kw">UPDATE</span> students
+<span class="kw">SET</span> course = <span class="str">'Web Dev'</span>, fee_paid = <span class="num">40000.00</span>
+<span class="kw">WHERE</span> student_id = <span class="num">3</span>;</div>
+      <div class="warn">Always use WHERE in UPDATE! Without it, ALL rows are updated.</div>
+    </div>
+    <div class="card card-red">
+      <h2 style="color:var(--red)">DELETE — Remove Rows</h2>
+      <div class="code-block"><span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> student_id = <span class="num">2</span>;   <span class="cm">-- specific row</span>
+<span class="kw">DELETE FROM</span> students <span class="kw">WHERE</span> is_active = <span class="kw">FALSE</span>;  <span class="cm">-- condition-based</span>
+<span class="kw">TRUNCATE TABLE</span> students;                        <span class="cm">-- removes all rows fast</span></div>
+      <table class="data-table" style="margin-top:.8rem">
+        <thead><tr><th>Command</th><th>Speed</th><th>Rollback</th><th>Triggers</th><th>WHERE</th></tr></thead>
+        <tbody>
+          <tr><td>DELETE</td><td>Slow</td><td><span class="pill pill-green">Yes</span></td><td><span class="pill pill-green">Fire</span></td><td><span class="pill pill-green">Yes</span></td></tr>
+          <tr><td>TRUNCATE</td><td><span class="pill pill-green">Fast</span></td><td><span class="pill pill-red">No</span></td><td><span class="pill pill-red">Don't fire</span></td><td><span class="pill pill-red">No</span></td></tr>
+          <tr><td>DROP</td><td>Instant</td><td><span class="pill pill-red">No</span></td><td>—</td><td><span class="pill pill-red">No</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ FILTER ══ -->
+  <div id="filter" class="section">
+    <p class="section-title" style="color:var(--teal)">5. Filtering and Sorting</p>
+    <div class="card card-teal">
+      <h2 style="color:var(--teal)">WHERE + Operators</h2>
+      <div class="code-block"><span class="kw">WHERE</span> age <span class="op">></span> <span class="num">20</span>
+<span class="kw">WHERE</span> age <span class="op">></span> <span class="num">20</span> <span class="kw">AND</span> gender = <span class="str">'F'</span>
+<span class="kw">WHERE</span> age <span class="op">></span> <span class="num">20</span> <span class="kw">OR</span>  course = <span class="str">'CS'</span>
+<span class="kw">WHERE</span> course <span class="kw">IN</span> (<span class="str">'CS'</span>, <span class="str">'DS'</span>, <span class="str">'AI'</span>)       <span class="cm">-- cleaner than multiple ORs</span>
+<span class="kw">WHERE</span> course <span class="kw">NOT IN</span> (<span class="str">'Undecided'</span>)
+<span class="kw">WHERE</span> fee_paid <span class="kw">BETWEEN</span> <span class="num">40000</span> <span class="kw">AND</span> <span class="num">50000</span>  <span class="cm">-- inclusive on both ends</span>
+<span class="kw">WHERE</span> course <span class="kw">IS NULL</span>
+<span class="kw">WHERE</span> course <span class="kw">IS NOT NULL</span></div>
+    </div>
+    <div class="grid-2">
+      <div class="card card-purple">
+        <h2 style="color:var(--purple)">LIKE &amp; ILIKE (Pattern Match)</h2>
+        <div class="code-block"><span class="cm">-- % = any chars, _ = one char</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'A%'</span>     <span class="cm">-- starts with A</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'%n'</span>     <span class="cm">-- ends with n</span>
+<span class="kw">WHERE</span> name <span class="kw">LIKE</span> <span class="str">'_r%'</span>    <span class="cm">-- 2nd char is r</span>
+<span class="kw">WHERE</span> name <span class="kw">ILIKE</span> <span class="str">'ar%'</span>   <span class="cm">-- case-insensitive</span></div>
+        <div class="tip">ILIKE is PostgreSQL-specific. MySQL doesn't have it.</div>
+      </div>
+      <div class="card card-blue">
+        <h2 style="color:var(--blue)">ORDER BY, LIMIT, OFFSET</h2>
+        <div class="code-block"><span class="kw">ORDER BY</span> age <span class="kw">ASC</span>          <span class="cm">-- youngest first</span>
+<span class="kw">ORDER BY</span> fee <span class="kw">DESC</span>          <span class="cm">-- highest first</span>
+<span class="kw">ORDER BY</span> course, age <span class="kw">DESC</span>  <span class="cm">-- multi-col sort</span>
+
+<span class="kw">LIMIT</span> <span class="num">5</span>                   <span class="cm">-- first 5 rows</span>
+<span class="kw">LIMIT</span> <span class="num">5</span> <span class="kw">OFFSET</span> <span class="num">10</span>          <span class="cm">-- rows 11-15</span>
+
+<span class="cm">-- Pagination (page 2, 10 per page):</span>
+<span class="kw">LIMIT</span> <span class="num">10</span> <span class="kw">OFFSET</span> <span class="num">10</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ AGGREGATES ══ -->
+  <div id="agg" class="section">
+    <p class="section-title" style="color:var(--amber)">6. Aggregate Functions</p>
+    <div class="card card-amber">
+      <h2 style="color:var(--amber)">The 5 Core Functions</h2>
+      <div class="grid-3">
+        <div style="text-align:center;background:var(--bg3);padding:.9rem;border-radius:10px"><div style="font-size:1.3rem;color:var(--purple);font-family:'JetBrains Mono',monospace;font-weight:600">COUNT(*)</div><p style="font-size:.8rem;color:var(--muted);margin-top:4px">Count rows</p></div>
+        <div style="text-align:center;background:var(--bg3);padding:.9rem;border-radius:10px"><div style="font-size:1.3rem;color:var(--blue);font-family:'JetBrains Mono',monospace;font-weight:600">SUM(col)</div><p style="font-size:.8rem;color:var(--muted);margin-top:4px">Total values</p></div>
+        <div style="text-align:center;background:var(--bg3);padding:.9rem;border-radius:10px"><div style="font-size:1.3rem;color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:600">AVG(col)</div><p style="font-size:.8rem;color:var(--muted);margin-top:4px">Average</p></div>
+        <div style="text-align:center;background:var(--bg3);padding:.9rem;border-radius:10px"><div style="font-size:1.3rem;color:var(--teal);font-family:'JetBrains Mono',monospace;font-weight:600">MIN(col)</div><p style="font-size:.8rem;color:var(--muted);margin-top:4px">Smallest</p></div>
+        <div style="text-align:center;background:var(--bg3);padding:.9rem;border-radius:10px"><div style="font-size:1.3rem;color:var(--coral);font-family:'JetBrains Mono',monospace;font-weight:600">MAX(col)</div><p style="font-size:.8rem;color:var(--muted);margin-top:4px">Largest</p></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card card-purple">
+        <h2 style="color:var(--purple)">GROUP BY</h2>
+        <div class="code-block"><span class="kw">SELECT</span> course,
+  <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total,
+  <span class="fn">AVG</span>(fee_paid) <span class="kw">AS</span> avg_fee
+<span class="kw">FROM</span> students
+<span class="kw">GROUP BY</span> course
+<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;</div>
+        <table class="data-table" style="margin-top:.6rem">
+          <thead><tr><th>course</th><th>total</th><th>avg_fee</th></tr></thead>
+          <tbody>
+            <tr><td>Computer Science</td><td>2</td><td>45000</td></tr>
+            <tr><td>Data Science</td><td>1</td><td>48000</td></tr>
+            <tr><td>Undecided</td><td>1</td><td>0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card card-pink">
+        <h2 style="color:var(--pink)">HAVING — Filter After GROUP</h2>
+        <div class="code-block"><span class="kw">SELECT</span> course, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total
+<span class="kw">FROM</span> students
+<span class="kw">GROUP BY</span> course
+<span class="kw">HAVING</span> <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="op">></span> <span class="num">1</span>;</div>
+        <div class="note" style="margin-top:.7rem">WHERE = filter rows BEFORE group.<br>HAVING = filter groups AFTER GROUP BY.<br>HAVING can use aggregate functions, WHERE cannot.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ JOINS ══ -->
+  <div id="joins" class="section">
+    <p class="section-title" style="color:var(--pink)">7. Joins</p>
+    <div class="card card-blue">
+      <h2 style="color:var(--blue)">Sample Tables Used in All Joins</h2>
+      <div class="grid-2">
+        <div>
+          <h3 style="color:var(--blue);margin-bottom:.5rem">students</h3>
+          <table class="data-table">
+            <thead><tr><th>student_id</th><th>name</th><th>dept_id</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>Arjun</td><td>101</td></tr>
+              <tr><td>2</td><td>Priya</td><td>102</td></tr>
+              <tr><td>3</td><td>Ravi</td><td>101</td></tr>
+              <tr><td>4</td><td>Sneha</td><td><span style="color:var(--muted)">NULL</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h3 style="color:var(--green);margin-bottom:.5rem">departments</h3>
+          <table class="data-table">
+            <thead><tr><th>dept_id</th><th>dept_name</th></tr></thead>
+            <tbody>
+              <tr><td>101</td><td>Computer Science</td></tr>
+              <tr><td>102</td><td>Data Science</td></tr>
+              <tr><td>103</td><td>Cybersecurity</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="join-grid">
+      <div class="join-card card-green">
+        <h4 style="color:var(--green)">INNER JOIN</h4>
+        <p><b>Samjho:</b> dono tables me same key match honi chahiye. Match hua to row aayegi, warna gayab. Ye sabse common join hai.</p>
+        <div class="code-block" style="font-size:.72rem;margin-top:.5rem"><span class="cm">-- Sirf matching students + departments</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">INNER JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id;
+
+<span class="cm">-- Agar sirf CS wale chahiye</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">INNER JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id
+<span class="kw">WHERE</span> d.dept_name = <span class="str">'Computer Science'</span>;</div>
+        <div class="tip" style="font-size:.76rem;margin-top:.5rem">INNER JOIN = “match mila to hi row dikhao”. Interview me isko sabse pehle yaad rakhna.</div>
+        <table class="data-table" style="font-size:.76rem;margin-top:.4rem">
+          <thead><tr><th>name</th><th>dept_name</th></tr></thead>
+          <tbody><tr><td>Arjun</td><td>Computer Science</td></tr><tr><td>Ravi</td><td>Computer Science</td></tr><tr><td>Priya</td><td>Data Science</td></tr></tbody>
+        </table>
+      </div>
+      <div class="join-card card-blue">
+        <h4 style="color:var(--blue)">LEFT JOIN</h4>
+        <p><b>Samjho:</b> left table ke <i>saare</i> rows aayenge. Right table me match mila to value aayegi, warna right side <code>NULL</code> ho jayegi.</p>
+        <div class="code-block" style="font-size:.72rem;margin-top:.5rem"><span class="cm">-- Students ko department ke saath dikhao</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">LEFT JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id;
+
+<span class="cm">-- Jis student ka department assign nahi hai, woh bhi dikhega</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">LEFT JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id
+<span class="kw">WHERE</span> d.dept_name <span class="kw">IS NULL</span>;</div>
+        <div class="tip" style="font-size:.76rem;margin-top:.5rem">LEFT JOIN ka use tab hota hai jab main table ka data miss nahi karna ho.</div>
+        <table class="data-table" style="font-size:.76rem;margin-top:.4rem">
+          <thead><tr><th>name</th><th>dept_name</th></tr></thead>
+          <tbody><tr><td>Arjun</td><td>Computer Science</td></tr><tr><td>Priya</td><td>Data Science</td></tr><tr><td>Ravi</td><td>Computer Science</td></tr><tr><td>Sneha</td><td style="color:var(--muted)">NULL</td></tr></tbody>
+        </table>
+      </div>
+      <div class="join-card card-amber">
+        <h4 style="color:var(--amber)">RIGHT JOIN</h4>
+        <p><b>Samjho:</b> RIGHT JOIN, LEFT JOIN ka ulta hai. Right table ke saare rows aate hain. Jo left side me match nahi karte, unme <code>NULL</code> aata hai.</p>
+        <div class="code-block" style="font-size:.72rem;margin-top:.5rem"><span class="cm">-- Departments ko base banao</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">RIGHT JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id;
+
+<span class="cm">-- Kaunsa department empty hai?</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">RIGHT JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id
+<span class="kw">WHERE</span> s.name <span class="kw">IS NULL</span>;</div>
+        <div class="tip" style="font-size:.76rem;margin-top:.5rem">Practical life me RIGHT JOIN kam use hota hai; usually LEFT JOIN ko preference dete hain.</div>
+        <table class="data-table" style="font-size:.76rem;margin-top:.4rem">
+          <thead><tr><th>name</th><th>dept_name</th></tr></thead>
+          <tbody><tr><td>Arjun</td><td>Computer Science</td></tr><tr><td>Priya</td><td>Data Science</td></tr><tr><td>Ravi</td><td>Computer Science</td></tr><tr><td style="color:var(--muted)">NULL</td><td>Cybersecurity</td></tr></tbody>
+        </table>
+      </div>
+      <div class="join-card card-pink">
+        <h4 style="color:var(--pink)">FULL OUTER JOIN</h4>
+        <p><b>Samjho:</b> dono tables ka full combination. Left ka data bhi, right ka data bhi. Jahan match nahi hota, wahan NULL. Ye tab useful hai jab dono sides ki missing entries bhi dekhni ho.</p>
+        <div class="code-block" style="font-size:.72rem;margin-top:.5rem"><span class="cm">-- Dono sides ka complete view</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="kw">FULL OUTER JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id;
+
+<span class="cm">-- Jahan match nahi hua, sirf woh rows dhoondo</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="kw">FULL OUTER JOIN</span> departments d
+  <span class="kw">ON</span> s.dept_id = d.dept_id
+<span class="kw">WHERE</span> s.name <span class="kw">IS NULL OR</span> d.dept_name <span class="kw">IS NULL</span>;</div>
+        <table class="data-table" style="font-size:.76rem;margin-top:.4rem">
+          <thead><tr><th>name</th><th>dept_name</th></tr></thead>
+          <tbody><tr><td>Arjun</td><td>Computer Science</td></tr><tr><td>Priya</td><td>Data Science</td></tr><tr><td>Ravi</td><td>Computer Science</td></tr><tr><td>Sneha</td><td style="color:var(--muted)">NULL</td></tr><tr><td style="color:var(--muted)">NULL</td><td>Cybersecurity</td></tr></tbody>
+        </table>
+      </div>
+      <div class="join-card card-red">
+        <h4 style="color:var(--red)">CROSS JOIN</h4>
+        <p><b>Samjho:</b> har row ka har row ke saath pair. Agar 4 students aur 3 departments hain, to 12 combinations banenge. Isko cartesian product bolte hain.</p>
+        <div class="code-block" style="font-size:.72rem;margin-top:.5rem"><span class="cm">-- Sab possible combinations</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">CROSS JOIN</span> departments d;
+
+<span class="cm">-- Example: dummy combinations for testing</span>
+<span class="kw">SELECT</span> s.name, d.dept_name
+<span class="kw">FROM</span> students s
+<span class="fn">CROSS JOIN</span> departments d
+<span class="kw">ORDER BY</span> s.name, d.dept_name;</div>
+        <div class="warn" style="font-size:.76rem">Use tab karo jab sab possible combinations chahiye hon. Bina filter ke result bahut bada ho sakta hai.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ SUBQUERY ══ -->
+  <div id="subquery" class="section">
+    <p class="section-title" style="color:var(--coral)">8. Subqueries &amp; Nested Queries</p>
+    <div class="card card-coral">
+      <h2 style="color:var(--coral)">What is a Subquery?</h2>
+      <p><b>Hinglish me:</b> ek query ke andar doosri query. Pehle inner query chalti hai, phir uska result outer query use karti hai. Jab direct answer ke liye pehle calculation chahiye ho, tab subquery ka use hota hai.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card card-purple">
+        <h2 style="color:var(--purple)">Simple Subquery</h2>
+        <div class="code-block"><span class="cm">-- Students jo average se zyada fee pay kar rahe hain</span>
+<span class="kw">SELECT</span> first_name, fee_paid
+<span class="kw">FROM</span> students
+<span class="kw">WHERE</span> fee_paid <span class="op">></span> (
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(fee_paid)
+  <span class="kw">FROM</span> students
+);
+
+<span class="cm">-- Samjho: inner query average nikaal rahi hai, outer query compare kar rahi hai</span></div>
+      </div>
+      <div class="card card-blue">
+        <h2 style="color:var(--blue)">Subquery with IN</h2>
+        <div class="code-block"><span class="cm">-- Sirf wahi students jo valid departments me hain</span>
+<span class="kw">SELECT</span> first_name
+<span class="kw">FROM</span> students
+<span class="kw">WHERE</span> dept_id <span class="kw">IN</span> (
+  <span class="kw">SELECT</span> dept_id
+  <span class="kw">FROM</span> departments
+);
+
+<span class="cm">-- Agar list ke andar value mil jaaye to row aati hai</span></div>
+      </div>
+    </div>
+    <div class="card card-teal">
+      <h2 style="color:var(--teal)">Subquery in FROM (Derived Table)</h2>
+      <div class="code-block"><span class="cm">-- Pehle group by ka result banao, phir uspar filter lagao</span>
+<span class="kw">SELECT</span> summary.course, summary.total
+<span class="kw">FROM</span> (
+  <span class="kw">SELECT</span> course, <span class="fn">COUNT</span>(<span class="op">*</span>) <span class="kw">AS</span> total
+  <span class="kw">FROM</span> students
+  <span class="kw">GROUP BY</span> course
+) <span class="kw">AS</span> summary
+<span class="kw">WHERE</span> summary.total <span class="op">></span> <span class="num">1</span>;
+
+<span class="cm">-- Derived table = temporary table jaisa, bas query ke andar</span></div>
+    </div>
+    <div class="card card-amber">
+      <h2 style="color:var(--amber)">Correlated Subquery <span class="pill pill-amber" style="font-size:10px">Slightly Advanced</span></h2>
+      <p style="margin-bottom:.7rem"><b>Samjho:</b> ye har row ke liye outer query se value uthata hai. Isliye slow ho sakta hai, especially badi tables par.</p>
+      <div class="code-block"><span class="cm">-- Har course ke average se zyada pay karne wale students</span>
+<span class="kw">SELECT</span> first_name, course, fee_paid
+<span class="kw">FROM</span> students s1
+<span class="kw">WHERE</span> fee_paid <span class="op">></span> (
+  <span class="kw">SELECT</span> <span class="fn">AVG</span>(fee_paid)
+  <span class="kw">FROM</span> students s2
+  <span class="kw">WHERE</span> s2.course = s1.course  <span class="cm">-- outer row ko refer kar raha hai</span>
+);
+
+<span class="cm">-- Ye correlated hai kyunki inner query s1.course ka use kar rahi hai</span></div>
+      <div class="note">Agar performance issue aaye, to CTE ya JOIN ke saath solution socho.</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ ADVANCED ══ -->
+  <div id="advanced" class="section">
+    <p class="section-title" style="color:var(--teal)">9. Advanced PostgreSQL Topics</p>
+    <div class="grid-2">
+      <div class="card card-purple">
+        <h2 style="color:var(--purple)">Indexes</h2>
+        <div class="code-block"><span class="cm">-- Index = table ka search shortcut. Socho book ke end me index page.</span>
+<span class="kw">CREATE INDEX</span> idx_course
+  <span class="kw">ON</span> students(course);
+
+<span class="cm">-- Unique index: duplicate allowed nahi</span>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_email
+  <span class="kw">ON</span> students(email);
+
+<span class="cm">-- Index remove karna ho to</span>
+<span class="kw">DROP INDEX</span> idx_course;</div>
+        <table class="data-table" style="margin-top:.7rem;font-size:.78rem">
+          <thead><tr><th>Type</th><th>Best For</th></tr></thead>
+          <tbody>
+            <tr><td>B-Tree</td><td>=, &lt;, &gt;, BETWEEN, ORDER BY</td></tr>
+            <tr><td>Hash</td><td>= only</td></tr>
+            <tr><td>GIN</td><td>JSON, Arrays, full-text</td></tr>
+            <tr><td>BRIN</td><td>Large ordered tables (logs)</td></tr>
+          </tbody>
+        </table>
+        <div class="note" style="margin-top:.6rem">Hinglish tip: read fast hoti hai, but write slow ho sakti hai. Isliye har column pe index mat lagao.</div>
+      </div>
+      <div class="card card-blue">
+        <h2 style="color:var(--blue)">Views &amp; Materialized Views</h2>
+        <div class="code-block"><span class="cm">-- View = saved query, data live rehti hai</span>
+<span class="kw">CREATE VIEW</span> active_students <span class="kw">AS</span>
+  <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students
+  <span class="kw">WHERE</span> is_active = <span class="kw">TRUE</span>;
+
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> active_students;
+
+<span class="cm">-- Materialized View = result store ho jaata hai</span>
+<span class="kw">CREATE MATERIALIZED VIEW</span> mv_stats <span class="kw">AS</span>
+  <span class="kw">SELECT</span> course, <span class="fn">COUNT</span>(<span class="op">*</span>)
+  <span class="kw">FROM</span> students <span class="kw">GROUP BY</span> course;
+
+<span class="kw">REFRESH MATERIALIZED VIEW</span> mv_stats;</div>
+        <div class="tip">View = live query. Materialized view = cache jaisa. Fast read, but refresh karna padta hai.</div>
+      </div>
+    </div>
+    <div class="card card-teal">
+      <h2 style="color:var(--teal)">Transactions — BEGIN / COMMIT / ROLLBACK</h2>
+      <div class="grid-2">
+        <div>
+          <div class="code-block"><span class="cm">-- Transaction = sab kuch ek saath succeed ya fail</span>
+<span class="kw">BEGIN</span>;
+<span class="kw">UPDATE</span> accounts
+  <span class="kw">SET</span> balance = balance <span class="op">-</span> <span class="num">5000</span>
+  <span class="kw">WHERE</span> id = <span class="num">1</span>;
+<span class="kw">UPDATE</span> accounts
+  <span class="kw">SET</span> balance = balance <span class="op">+</span> <span class="num">5000</span>
+  <span class="kw">WHERE</span> id = <span class="num">2</span>;
+<span class="kw">COMMIT</span>;   <span class="cm">-- dono changes save</span></div>
+        </div>
+        <div>
+          <div class="code-block"><span class="cm">-- Agar beech me issue aaye, rollback</span>
+<span class="kw">BEGIN</span>;
+<span class="kw">INSERT INTO</span> students ...;
+<span class="kw">SAVEPOINT</span> sp1;  <span class="cm">-- checkpoint jaisa</span>
+<span class="kw">INSERT INTO</span> students ...;
+<span class="cm">-- Sirf last step undo:</span>
+<span class="kw">ROLLBACK TO</span> sp1;
+<span class="kw">COMMIT</span>;</div>
+        </div>
+      </div>
+      <div class="note">Bank transfer ka classic example: paise yahan se gaye aur wahan na पहुंचे, aisa nahi hona chahiye.</div>
+    </div>
+    <div class="card card-pink">
+      <h2 style="color:var(--pink)">CTEs — WITH Clause</h2>
+      <div class="code-block"><span class="cm">-- CTE = temporary named result set. Code clean aur readable hota hai.</span>
+<span class="kw">WITH</span> top_students <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students
+  <span class="kw">WHERE</span> fee_paid <span class="op">></span> <span class="num">40000</span>
+)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> top_students
+<span class="kw">ORDER BY</span> fee_paid <span class="kw">DESC</span>;
+
+<span class="cm">-- Multiple CTEs</span>
+<span class="kw">WITH</span>
+  cs <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students <span class="kw">WHERE</span> course = <span class="str">'CS'</span>),
+  ds <span class="kw">AS</span> (<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students <span class="kw">WHERE</span> course = <span class="str">'DS'</span>)
+<span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> cs <span class="kw">UNION ALL</span> <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> ds;</div>
+      <div class="tip">CTEs complex query ko steps me tod dete hain. Har query ke baad temporary result khatam ho jaata hai.</div>
+    </div>
+    <div class="card card-amber">
+      <h2 style="color:var(--amber)">Window Functions <span class="pill pill-amber" style="font-size:10px">Interview Favourite</span></h2>
+      <div class="code-block"><span class="cm">-- Window function = row preserve hoti hai, calculation saath me hota hai</span>
+<span class="kw">SELECT</span> name, fee_paid,
+  <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> fee_paid <span class="kw">DESC</span>) <span class="kw">AS</span> rn,
+  <span class="fn">RANK</span>()       <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> fee_paid <span class="kw">DESC</span>) <span class="kw">AS</span> rnk,
+  <span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span>(<span class="kw">ORDER BY</span> fee_paid <span class="kw">DESC</span>) <span class="kw">AS</span> drnk
+<span class="kw">FROM</span> students;
+
+<span class="cm">-- Partition: har course ke andar alag ranking</span>
+<span class="fn">RANK</span>() <span class="kw">OVER</span> (<span class="kw">PARTITION BY</span> course <span class="kw">ORDER BY</span> fee_paid <span class="kw">DESC</span>)
+
+<span class="cm">-- Running total</span>
+<span class="fn">SUM</span>(fee_paid) <span class="kw">OVER</span> (<span class="kw">ORDER BY</span> student_id)</div>
+      <div class="note">RANK: 1,1,3 (gap aata hai). DENSE_RANK: 1,1,2 (gap nahi aata). Interview me ye difference bahut important hai.</div>
+    </div>
+    <div class="grid-2">
+      <div class="card card-teal">
+        <h2 style="color:var(--teal)">JSONB Basics</h2>
+        <div class="code-block"><span class="cm">-- JSONB = structured data ko store karne ka strong way</span>
+details <span class="tp">JSONB</span>
+
+<span class="cm">-- Insert</span>
+<span class="kw">INSERT INTO</span> products (name, details)
+<span class="kw">VALUES</span> (<span class="str">'Laptop'</span>,
+  <span class="str">'{"brand":"Dell","ram":16}'</span>);
+
+<span class="cm">-- -> text deta hai, -> JSON object deta hai</span>
+<span class="kw">SELECT</span> details <span class="op">->></span> <span class="str">'brand'</span> <span class="kw">FROM</span> products;
+
+<span class="cm">-- Filter</span>
+<span class="kw">WHERE</span> details <span class="op">@></span> <span class="str">'{"ram":16}'</span>
+<span class="cm">-- Query fast karne ke liye GIN index bhi laga sakte ho</span></div>
+      </div>
+      <div class="card card-coral">
+        <h2 style="color:var(--coral)">Stored Procedures vs Functions</h2>
+        <table class="data-table">
+          <thead><tr><th>Feature</th><th>Function</th><th>Procedure</th></tr></thead>
+          <tbody>
+            <tr><td>Returns value</td><td><span class="pill pill-green">Yes</span></td><td><span class="pill pill-red">No</span></td></tr>
+            <tr><td>Use in SELECT</td><td><span class="pill pill-green">Yes</span></td><td><span class="pill pill-red">No</span></td></tr>
+            <tr><td>Call with</td><td>SELECT fn()</td><td>CALL proc()</td></tr>
+            <tr><td>COMMIT inside</td><td><span class="pill pill-red">No</span></td><td><span class="pill pill-green">Yes (PG 11+)</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ INTERVIEW ══ -->
+  <div id="interview" class="section">
+    <p class="section-title" style="color:var(--red)">10. Interview Q&amp;A</p>
+    <div class="card card-purple" style="margin-bottom:1rem">
+      <h2 style="color:var(--purple)">Click a question to see the answer</h2>
+    </div>
+    <div id="qa-list"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════ CHEAT SHEET ══ -->
+  <div id="cheatsheet" class="section">
+    <p class="section-title" style="color:var(--green)">11. Quick Cheat Sheet</p>
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <h4 style="color:var(--purple)">Database Mgmt</h4>
+        <div class="code-block"><span class="kw">CREATE DATABASE</span> mydb;
+<span class="kw">DROP DATABASE</span> mydb;
+<span class="kw">CREATE SCHEMA</span> hr;
+\l   <span class="cm">-- list databases</span>
+\dt  <span class="cm">-- list tables</span>
+\d tablename</div>
+      </div>
+      <div class="cheat-card">
+        <h4 style="color:var(--blue)">Table DDL</h4>
+        <div class="code-block"><span class="kw">CREATE TABLE</span> t (...);
+<span class="kw">DROP TABLE</span> t;
+<span class="kw">TRUNCATE TABLE</span> t;
+<span class="kw">ALTER TABLE</span> t
+  <span class="kw">ADD COLUMN</span> col <span class="tp">INT</span>;
+<span class="kw">ALTER TABLE</span> t
+  <span class="kw">DROP COLUMN</span> col;</div>
+      </div>
+      <div class="cheat-card">
+        <h4 style="color:var(--green)">CRUD</h4>
+        <div class="code-block"><span class="kw">SELECT</span> cols <span class="kw">FROM</span> t <span class="kw">WHERE</span> c;
+<span class="kw">INSERT INTO</span> t (c) <span class="kw">VALUES</span> (v);
+<span class="kw">UPDATE</span> t <span class="kw">SET</span> c=v <span class="kw">WHERE</span> c;
+<span class="kw">DELETE FROM</span> t <span class="kw">WHERE</span> c;</div>
+      </div>
+      <div class="cheat-card">
+        <h4 style="color:var(--amber)">Filtering</h4>
+        <div class="code-block"><span class="kw">WHERE</span>, <span class="kw">AND</span>, <span class="kw">OR</span>, <span class="kw">NOT</span>
+<span class="kw">IN</span>(v1,v2) / <span class="kw">NOT IN</span>
+<span class="kw">BETWEEN</span> a <span class="kw">AND</span> b
+<span class="kw">LIKE</span> <span class="str">'A%'</span> / <span class="kw">ILIKE</span>
+<span class="kw">IS NULL</span> / <span class="kw">IS NOT NULL</span></div>
+      </div>
+      <div class="cheat-card">
+        <h4 style="color:var(--teal)">Aggregates</h4>
+        <div class="code-block"><span class="fn">COUNT</span>(<span class="op">*</span>), <span class="fn">SUM</span>(c), <span class="fn">AVG</span>(c)
+<span class="fn">MIN</span>(c), <span class="fn">MAX</span>(c)
+<span class="kw">GROUP BY</span> col
+<span class="kw">HAVING</span> aggregate_cond
+<span class="kw">ORDER BY</span> col <span class="kw">ASC</span>/<span class="kw">DESC</span>
+<span class="kw">LIMIT</span> n <span class="kw">OFFSET</span> m</div>
+      </div>
+      <div class="cheat-card">
+        <h4 style="color:var(--pink)">Joins</h4>
+        <div class="code-block"><span class="fn">INNER JOIN</span> t <span class="kw">ON</span> a=b
+<span class="fn">LEFT JOIN</span>  t <span class="kw">ON</span> a=b
+<span class="fn">RIGHT JOIN</span> t <span class="kw">ON</span> a=b
+<span class="fn">FULL OUTER JOIN</span> t <span class="kw">ON</span> a=b
+<span class="fn">CROSS JOIN</span> t</div>
+      </div>
+      <div class="cheat-card">
+        <h4 style="color:var(--coral)">Transactions</h4>
+        <div class="code-block"><span class="kw">BEGIN</span>;
+<span class="cm">-- SQL statements</span>
+<span class="kw">SAVEPOINT</span> sp1;
+<span class="kw">ROLLBACK TO</span> sp1;
+<span class="kw">COMMIT</span>;
+<span class="kw">ROLLBACK</span>;</div>
+      </div>
+      <div class="cheat-card">
+        <h4 style="color:var(--purple)">Window Functions</h4>
+        <div class="code-block"><span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span>(...)
+<span class="fn">RANK</span>()       <span class="kw">OVER</span>(...)
+<span class="fn">DENSE_RANK</span>() <span class="kw">OVER</span>(...)
+<span class="fn">LAG</span>(col, n)  <span class="kw">OVER</span>(...)
+<span class="fn">SUM</span>(col)     <span class="kw">OVER</span>(...)
+<span class="kw">PARTITION BY</span> col</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:1.2rem">
+      <h2 style="color:var(--amber)">Key Difference Quick Reference</h2>
+      <div class="grid-2">
+        <div>
+          <h3 style="color:var(--muted);font-size:.82rem;margin-bottom:.6rem">Common Mistakes</h3>
+          <div class="diff-row"><div class="diff-wrong">WHERE col = NULL</div><div class="diff-arrow">→</div><div class="diff-right">WHERE col IS NULL</div></div>
+          <div class="diff-row"><div class="diff-wrong">UPDATE t SET x=1</div><div class="diff-arrow">→</div><div class="diff-right">Always add WHERE!</div></div>
+          <div class="diff-row"><div class="diff-wrong">HAVING for row filter</div><div class="diff-arrow">→</div><div class="diff-right">Use WHERE instead</div></div>
+          <div class="diff-row"><div class="diff-wrong">NOT IN (with NULLs)</div><div class="diff-arrow">→</div><div class="diff-right">Use NOT EXISTS</div></div>
+          <div class="diff-row"><div class="diff-wrong">SELECT * in prod</div><div class="diff-arrow">→</div><div class="diff-right">Select only needed cols</div></div>
+        </div>
+        <div>
+          <h3 style="color:var(--muted);font-size:.82rem;margin-bottom:.6rem">Important Distinctions</h3>
+          <table class="data-table" style="font-size:.8rem">
+            <tbody>
+              <tr><td style="color:var(--blue)">WHERE vs HAVING</td><td>Rows before / Groups after GROUP BY</td></tr>
+              <tr><td style="color:var(--blue)">DELETE vs TRUNCATE</td><td>Rollbackable / Instant non-rollback</td></tr>
+              <tr><td style="color:var(--blue)">UNION vs UNION ALL</td><td>No dupes / Keeps all (faster)</td></tr>
+              <tr><td style="color:var(--blue)">CHAR vs VARCHAR</td><td>Fixed length / Variable length</td></tr>
+              <tr><td style="color:var(--blue)">JSON vs JSONB</td><td>Text / Binary (faster, indexable)</td></tr>
+              <tr><td style="color:var(--blue)">RANK vs DENSE_RANK</td><td>Skips (1,1,3) / No skip (1,1,2)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const qas = [
+  ["What are ACID properties?","<b>Hinglish:</b> Atomicity = sab ya kuch bhi nahi. Consistency = data hamesha valid state me. Isolation = transactions ek dusre ko disturb nahi karte. Durability = commit ke baad data safe rehta hai, crash me bhi."],
+  ["PRIMARY KEY vs UNIQUE KEY — difference?","PRIMARY KEY: unique bhi hota hai aur <b>NOT NULL</b> bhi, aur ek table me sirf 1 primary key ho sakti hai. UNIQUE: duplicate nahi aane deta, but NULL allow kar sakta hai, aur multiple UNIQUE constraints ho sakte hain."],
+  ["What is the difference between DELETE, TRUNCATE, and DROP?","DELETE: selected rows delete karta hai, WHERE use hota hai, rollback possible hota hai, triggers fire hote hain. TRUNCATE: poori table ke rows fast remove karta hai, WHERE nahi, triggers nahi. DROP: table ka structure + data dono hata deta hai."],
+  ["WHERE vs HAVING — when to use each?","WHERE pehle rows ko filter karta hai before GROUP BY. HAVING groups ko filter karta hai after GROUP BY. Agar COUNT/SUM/AVG jaisa aggregate use karna hai, to HAVING use karo."],
+  ["Explain all types of JOINs.","INNER JOIN: dono table me matching rows. LEFT JOIN: left table ke sab rows + right se matching. RIGHT JOIN: right table ke sab rows + left se matching. FULL OUTER JOIN: dono tables ke sab rows, jahan match nahi hai wahan NULL. CROSS JOIN: har row ka har row ke saath combination."],
+  ["What is an Index? When should you NOT use it?","Index ek search shortcut hai. Socho book ke last me index page. Select queries fast ho jaati hain, but inserts/updates thode slow ho sakte hain. Small table, highly duplicated column, ya bahut frequent writes ho to index avoid karo."],
+  ["What is a View? How is it different from a Materialized View?","View ek saved query hoti hai jo live run hoti hai. Materialized View result ko store kar leti hai, isliye fast hoti hai, but update ke liye REFRESH karna padta hai."],
+  ["What is a CTE?","CTE (Common Table Expression) = WITH keyword se banaya gaya temporary named result set. Query ko step-by-step aur readable bana deta hai. Sirf usi query ke duration tak exist karta hai."],
+  ["What are Window Functions? Give examples.","Window functions row ko collapse nahi karte; row ke saath calculation karte hain. Examples: ROW_NUMBER() unique number deta hai, RANK() ties ke baad gap chhodta hai, DENSE_RANK() gap nahi chhodta, LAG() previous row ka value deta hai, SUM() OVER() running total banata hai."],
+  ["RANK() vs DENSE_RANK() — what's the difference?","Agar tie aaya to RANK me gap aata hai: 1,1,3. DENSE_RANK me gap nahi aata: 1,1,2. Simple rule: gap chahiye to RANK, no-gap ranking chahiye to DENSE_RANK."],
+  ["What is MVCC in PostgreSQL?","MVCC = Multi-Version Concurrency Control. Iska matlab multiple users ek saath read/write kar sakte hain bina full blocking ke. Har transaction ko data ka consistent snapshot milta hai."],
+  ["Function vs Stored Procedure — difference?","Function value return karti hai aur SELECT me use ho sakti hai. Procedure value return nahi karti, CALL se chalti hai, aur PostgreSQL 11+ me transaction control (COMMIT/ROLLBACK) kar sakti hai."],
+  ["What is a Trigger?","Trigger ek automatic action hai jo INSERT, UPDATE, DELETE jaise event par chalti hai. BEFORE/AFTER aur row-level/statement-level dono tarah se set ki ja sakti hai."],
+  ["Write a query to find the 2nd highest fee paid.","Ek easy way: SELECT MAX(fee_paid) FROM students WHERE fee_paid < (SELECT MAX(fee_paid) FROM students);. Ya DENSE_RANK() use karke rank 2 wali value nikaalo."],
+  ["How do you find duplicate records?","GROUP BY ke saath COUNT(*) use karo: SELECT email, COUNT(*) FROM students GROUP BY email HAVING COUNT(*) > 1;. Jahan count 1 se zyada hai, wahan duplicate hai."],
+  ["What is the difference between NOT IN and NOT EXISTS?","Agar subquery me NULL aa gaya to NOT IN weird behave kar sakta hai aur rows miss ho sakti hain. NOT EXISTS NULL-safe hota hai. Isliye NULL possible ho to NOT EXISTS safer choice hai."],
+  ["What is normalization? Explain 1NF, 2NF, 3NF.","Normalization ka goal redundancy kam karna hai. 1NF: har cell me atomic value, repeating groups nahi. 2NF: partial dependency nahi. 3NF: transitive dependency nahi."],
+  ["JSON vs JSONB in PostgreSQL — which to prefer?","JSONB generally better hai because ye binary format me store hota hai, query fast hoti hai, aur index support better hota hai. JSON exact input ko preserve karta hai, but querying slower hoti hai. Mostly JSONB prefer karo."],
+  ["What does EXPLAIN ANALYZE do?","EXPLAIN query plan dikhata hai. EXPLAIN ANALYZE query ko actually run karke timing aur row counts dikhata hai. Performance issue pakadne ke liye ye bahut important tool hai."],
+  ["What is COALESCE and NULLIF?","COALESCE(a,b,c) = pehla non-NULL value return karta hai. NULLIF(a,b) = agar a=b ho to NULL, warna a. Example: NULLIF(count,0) division-by-zero se bachata hai."],
+  ["How do you model a many-to-many relationship?","Bridge / junction table banao jisme dono tables ke foreign keys ho. Example: enrollments table me student_id aur course_id dono. Kabhi-kabhi UNIQUE(student_id, course_id) bhi lagate hain."],
+  ["What is a SERIAL column? What is IDENTITY?","SERIAL older auto-increment syntax hai, sequence internally use karta hai. IDENTITY SQL standard way hai. GENERATED ALWAYS manual insert ko rokti hai, BY DEFAULT manual insert allow kar sakti hai."],
+  ["What happens if you UPDATE without a WHERE clause?","Table ke saare rows update ho jaate hain. Ye dangerous mistake hai. UPDATE ya DELETE chalane se pehle same WHERE ke saath SELECT karke check karna best habit hai."],
+  ["What is a Subquery? Name its types.","Subquery = query ke andar query. Types: Scalar (1 value), Row (1 row), Table/Multi-row (multiple rows), Correlated (outer query ko reference karti hai, isliye slow ho sakti hai)."],
+  ["What is the difference between UNION and UNION ALL?","UNION duplicate rows remove karta hai, isliye thoda slow ho sakta hai. UNION ALL duplicates ko bhi rakhta hai, isliye faster hota hai."],
+  ["How do you add a column to an existing table?","ALTER TABLE students ADD COLUMN phone VARCHAR(15);. Agar default chahiye ho to: ADD COLUMN score INT DEFAULT 0;."],
+  ["What is a Sequence?","Sequence unique integers generate karti hai. SERIAL isko internally use karta hai. NEXTVAL('seq_name') next number deta hai."],
+  ["What is ON DELETE CASCADE?","Foreign key ka option. Parent row delete hone par child rows bhi auto-delete ho jaati hain. SET NULL me child FK NULL ho jaata hai, RESTRICT me delete block hota hai."],
+  ["How do you do pagination in PostgreSQL?","LIMIT + OFFSET use karo: page 1 = LIMIT 10 OFFSET 0, page 2 = LIMIT 10 OFFSET 10. Consistent result ke liye ORDER BY zaroor lagao."],
+  ["What is a Self Join?","Table ko usi table ke saath join karna. Hierarchy ke liye useful hai, jaise employee aur manager ka relation."]
+];
+
+const list = document.getElementById('qa-list');
+qas.forEach(([q,a],i) => {
+  const item = document.createElement('div');
+  item.className = 'qa-item';
+  item.innerHTML = `
+    <div class="qa-q" onclick="toggleQA(${i})">
+      <span>Q${i+1}. ${q}</span>
+      <span class="qa-arrow" id="arr${i}">▼</span>
+    </div>
+    <div class="qa-a" id="ans${i}">${a}</div>`;
+  list.appendChild(item);
+});
+
+function toggleQA(i){
+  const a = document.getElementById('ans'+i);
+  const arr = document.getElementById('arr'+i);
+  a.classList.toggle('open');
+  arr.classList.toggle('open');
+}
+
+function show(id, btn){
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+window.addEventListener('scroll', () => {
+  const p = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  document.getElementById('progress').style.width = Math.min(p,100)+'%';
+});
+</script>
+</body>
+</html>
