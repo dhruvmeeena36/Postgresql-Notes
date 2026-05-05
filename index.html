@@ -719,14 +719,14 @@
 </div>
 <div class="card card-blue">
 <h2 style="color:var(--blue)">Views &amp; Materialized Views</h2>
-<div class="code-block"><span class="cm">-- View = saved query, data live rehti hai</span>
+<div class="code-block"><span class="cm"> -- View = Data actually store nahi hota Har baar query run hoti hai → latest data milta hai</span>
 <span class="kw">CREATE VIEW</span> active_students <span class="kw">AS</span>
 <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> students
   <span class="kw">WHERE</span> is_active = <span class="kw">TRUE</span>;
 
 <span class="kw">SELECT</span> <span class="op">*</span> <span class="kw">FROM</span> active_students;
 
-<span class="cm">-- Materialized View = result store ho jaata hai</span>
+<span class="cm">-- Materialized View = Query ka result physically store hota hai , Fast read ✅ , but Manually refresh karna padta hai </span>
 <span class="kw">CREATE MATERIALIZED VIEW</span> mv_stats <span class="kw">AS</span>
 <span class="kw">SELECT</span> course, <span class="fn">COUNT</span>(<span class="op">*</span>)
   <span class="kw">FROM</span> students <span class="kw">GROUP BY</span> course;
