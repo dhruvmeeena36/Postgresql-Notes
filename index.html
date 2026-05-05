@@ -997,7 +997,6 @@ const qas = [
   ["What is the difference between UNION and UNION ALL?","UNION duplicate rows remove karta hai, isliye thoda slow ho sakta hai. UNION ALL duplicates ko bhi rakhta hai, isliye faster hota hai."],
   ["How do you add a column to an existing table?","ALTER TABLE students ADD COLUMN phone VARCHAR(15);. Agar default chahiye ho to: ADD COLUMN score INT DEFAULT 0;."],
   ["What is a Sequence?","Sequence unique integers generate karti hai. SERIAL isko internally use karta hai. NEXTVAL('seq_name') next number deta hai."],
-  ["What is ON DELETE CASCADE?","Foreign key ka option. Parent row delete hone par child rows bhi auto-delete ho jaati hain. SET NULL me child FK NULL ho jaata hai, RESTRICT me delete block hota hai."],
 ];
 
 const list = document.getElementById('qa-list');
